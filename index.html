@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Naveen Prasad's Ultra-Interactive 3D Data Analyst Portfolio - SQL, Python, Excel & Analytics.">
+  <title>NAVEEN DEVRARI | Data Analyst Portfolio</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Three.js for Ultra 3D Graphics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP for Kinetic Text & Particle Intro Animation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Google Fonts: Space Grotesk, Syne & Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@700;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            syne: ['"Syne"', 'sans-serif'],
+            space: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              dark: '#030712',
+              card: 'rgba(15, 23, 42, 0.75)',
+              accent: '#38bdf8',
+              blue: '#2563eb',
+              cyan: '#06b6d4',
+              purple: '#8b5cf6',
+              pink: '#ec4899',
+              emerald: '#10b981',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030712;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, #ffffff, #38bdf8, #8b5cf6);
+      border-radius: 6px;
+    }
+
+    /* Fixed WebGL Canvas Background */
+    #webgl-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Kinetic Intro Splash Overlay */
+    #intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: #030712;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      pointer-events: all;
+    }
+
+    .intro-dot {
+      width: 16px;
+      height: 16px;
+      background-color: #38bdf8;
+      border-radius: 50%;
+      box-shadow: 0 0 35px 12px rgba(56, 189, 248, 0.9);
+      position: absolute;
+    }
+
+    /* KINETIC TITLE TEXT */
+    .title-kinetic {
+      font-family: 'Syne', 'Space Grotesk', sans-serif;
+      font-size: clamp(2.8rem, 10vw, 8.5rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      text-transform: uppercase;
+      perspective: 1000px;
+    }
+
+    .intro-text-letter {
+      display: inline-block;
+      transform-style: preserve-3d;
+      opacity: 0;
+      filter: blur(15px);
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 40%, #38bdf8 80%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 10px 40px rgba(56, 189, 248, 0.35);
+      position: relative;
+    }
+
+    .intro-text-letter::after {
+      content: attr(data-char);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: -1;
+      -webkit-text-stroke: 3px rgba(56, 189, 248, 0.6);
+      -webkit-text-fill-color: transparent;
+      filter: blur(8px);
+      opacity: 0.8;
+    }
+
+    /* Glassmorphism Styling */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transform-style: preserve-3d;
+      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(56, 189, 248, 0.6);
+      box-shadow: 0 30px 60px -12px rgba(56, 189, 248, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    }
+
+    .gradient-text {
+      font-family: 'Syne', sans-serif;
+      background: linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    @keyframes floatHero {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(1deg); }
+    }
+    .animate-float {
+      animation: floatHero 5s ease-in-out infinite;
+    }
+
+    @keyframes spinHolo {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .animate-spin-holo {
+      animation: spinHolo 15s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans antialiased selection:bg-white selection:text-black min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+  <!-- Interactive 3D Canvas Background -->
+  <canvas id="webgl-bg"></canvas>
+
+  <!-- KINETIC INTRO SPLASH OVERLAY -->
+  <div id="intro-overlay">
+    <div id="intro-center-dot" class="intro-dot"></div>
+    
+    <div class="text-center relative z-10 px-4 max-w-6xl">
+      <div id="kinetic-title-box" class="title-kinetic flex justify-center items-center flex-wrap overflow-hidden py-4 tracking-tighter">
+      </div>
+      <div id="kinetic-badge" class="mt-4 opacity-0 transform translate-y-6">
+        <span class="px-5 py-2 rounded-full border border-cyan-400/40 bg-cyan-950/40 text-cyan-300 text-xs sm:text-sm font-space font-bold tracking-[0.35em] uppercase shadow-[0_0_20px_rgba(56,189,248,0.3)]">
+          Data Analyst & Business Intelligence
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 transform translate-y-24 opacity-0 transition-all duration-300 z-50 bg-slate-900/90 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 border border-brand-accent/50 backdrop-blur-2xl">
+    <i class="fas text-brand-accent me-2" id="toast-icon"></i>
+    <span id="toast-message" class="text-sm font-semibold">Notification message</span>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="fixed top-0 left-0 w-full z-40 transition-all duration-300 py-4 opacity-0" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 glass-card rounded-2xl px-6 border border-white/10">
+        <a href="#home" class="text-xl font-extrabold tracking-tight text-white flex items-center space-x-3 group">
+          <span class="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center font-black font-syne text-sm shadow-lg shadow-white/20 group-hover:rotate-12 transition-transform duration-300">NP</span>
+          <span class="font-syne font-black text-xl tracking-wider text-white">NAVEEN PRASAD</span>
+        </a>
+
+        <nav class="hidden md:flex items-center space-x-8 text-xs font-black uppercase tracking-widest">
+          <a href="#about" class="text-slate-300 hover:text-white transition-colors">About</a>
+          <a href="#skills" class="text-slate-300 hover:text-white transition-colors">Skills</a>
+          <a href="#projects" class="text-slate-300 hover:text-white transition-colors">Projects</a>
+          <a href="#certifications" class="text-slate-300 hover:text-white transition-colors">Certifications</a>
+        </nav>
+
+        <div class="hidden md:flex items-center space-x-3">
+          <button onclick="triggerIntroAnimation()" class="px-4 py-2 rounded-xl bg-white/10 text-slate-300 text-xs font-bold hover:bg-white hover:text-black transition-all">
+            <i class="fas fa-play mr-1.5"></i> Replay Intro
+          </button>
+          <a href="#contact" class="px-6 py-2.5 rounded-xl bg-white text-black text-xs font-black hover:bg-slate-200 transition-all">
+            Connect <i class="fas fa-arrow-right ml-1"></i>
+          </a>
+        </div>
+
+        <div class="md:hidden flex items-center">
+          <button id="menu-btn" class="text-slate-300 hover:text-white focus:outline-none p-2" aria-label="Toggle Menu">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden max-w-7xl mx-auto px-4 mt-2">
+      <div class="glass-card rounded-2xl p-6 flex flex-col space-y-4 font-bold text-xs uppercase tracking-widest">
+        <a href="#about" class="text-slate-300 hover:text-white py-2">About</a>
+        <a href="#skills" class="text-slate-300 hover:text-white py-2">Skills</a>
+        <a href="#projects" class="text-slate-300 hover:text-white py-2">Projects</a>
+        <a href="#certifications" class="text-slate-300 hover:text-white py-2">Certifications</a>
+        <button onclick="triggerIntroAnimation()" class="w-full text-center px-4 py-2.5 rounded-xl bg-white/10 text-white font-bold mb-2">
+          Replay Intro Sequence
+        </button>
+        <a href="#contact" class="w-full text-center px-5 py-3 rounded-xl bg-white text-black font-black">
+          Connect
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="relative pt-36 lg:pt-48 pb-20 overflow-hidden">
+    <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[140px] pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <div class="lg:col-span-7 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-xs font-black text-slate-300 mb-6 border border-white/20">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+            </span>
+            DATA ANALYST & BUSINESS INTELLIGENCE
+          </div>
+
+          <h1 class="text-5xl sm:text-7xl lg:text-8xl font-black font-syne tracking-tighter text-white leading-none">
+            NAVEEN <br />
+            <span class="gradient-text">PRASAD</span>
+          </h1>
+
+          <p class="mt-6 text-base sm:text-lg text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            Data Analyst specializing in SQL relational queries, Python pandas data wrangling, advanced Excel modeling, and data-driven reporting to solve real business problems.
+          </p>
+
+          <div class="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <a href="#projects" class="tilt-card w-full sm:w-auto px-8 py-4 rounded-xl bg-white text-black font-black text-center transition-all shadow-2xl flex items-center justify-center group hover:bg-slate-200">
+              Explore Projects <i class="fas fa-arrow-right ml-2 text-xs group-hover:translate-x-1.5 transition-transform"></i>
+            </a>
+            <a href="#contact" class="tilt-card w-full sm:w-auto px-8 py-4 rounded-xl glass-card text-slate-200 font-bold text-center transition-all border border-slate-700 hover:text-white flex items-center justify-center">
+              <i class="fas fa-paper-plane mr-2 text-brand-accent"></i> Get In Touch
+            </a>
+          </div>
+
+          <div class="mt-12 flex items-center justify-center lg:justify-start space-x-6 text-slate-400">
+            <a href="https://github.com/" target="_blank" rel="noreferrer" class="hover:text-white transition-colors text-2xl hover:scale-125 transform duration-300" title="GitHub"><i class="fab fa-github"></i></a>
+            <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" class="hover:text-white transition-colors text-2xl hover:scale-125 transform duration-300" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="mailto:naveendevrari429@gmail.com" class="hover:text-white transition-colors text-2xl hover:scale-125 transform duration-300" title="Email"><i class="fas fa-envelope"></i></a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="tilt-card relative w-72 h-80 sm:w-80 sm:h-96 lg:w-96 lg:h-[460px] animate-float">
+            <div class="absolute -inset-4 rounded-[40px] bg-gradient-to-r from-white via-brand-accent to-purple-600 opacity-30 blur-xl animate-spin-holo"></div>
+            
+            <div class="relative w-full h-full rounded-3xl overflow-hidden border border-white/20 shadow-2xl glass-card flex items-center justify-center">
+              <img id="user-photo" 
+                   src=""C:\Users\Naveen\Downloads\picture.jpeg"" 
+                   alt="Naveen Prasad" 
+                   onerror="handleImageError(this)" 
+                   class="w-full h-full object-cover filter brightness-105 contrast-105 hover:scale-105 transition-transform duration-500">
+
+              <div id="svg-fallback" class="hidden w-full h-full bg-gradient-to-b from-slate-900 via-slate-950 to-black flex-col items-center justify-center p-6 text-center">
+                <svg class="w-48 h-48 text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.6)]" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M40 180 C40 140, 70 120, 100 120 C130 120, 160 140, 160 180" fill="#1e293b"/>
+                  <path d="M70 180 L100 125 L130 180" fill="#f8fafc"/>
+                  <path d="M50 180 C50 145, 75 130, 100 130 C125 130, 150 145, 150 180" fill="#0f172a"/>
+                  <polygon points="85,130 100,150 115,130 100,135" fill="#e2e8f0"/>
+                  <rect x="90" y="105" width="20" height="25" rx="5" fill="#d97706" opacity="0.7"/>
+                  <ellipse cx="100" cy="85" rx="30" ry="38" fill="#d97706" opacity="0.8"/>
+                  <path d="M68 75 C65 50, 85 40, 100 40 C120 40, 135 52, 132 75 C125 65, 115 62, 100 62 C85 62, 75 68, 68 75 Z" fill="#1c1917"/>
+                </svg>
+                <p class="text-xs font-black text-white mt-3 tracking-widest uppercase">Naveen Prasad</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Data Analyst</p>
+              </div>
+            </div>
+
+            <div class="absolute -bottom-6 -left-6 glass-card p-4 rounded-2xl border border-white/20 flex items-center space-x-3 shadow-2xl z-20">
+              <div class="w-12 h-12 rounded-xl bg-white text-black flex items-center justify-center text-xl font-black shadow-lg">
+                <i class="fas fa-brain"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold">Program Focus</p>
+                <p class="text-xs font-black text-white">Data Science & AI</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-24 border-t border-slate-900 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-xs font-black text-brand-accent uppercase tracking-widest">About Me</h2>
+          <h3 class="text-3xl sm:text-4xl font-black text-white mt-2 leading-tight">Exploratory Data Analysis & Analytical Intelligence.</h3>
+          <p class="mt-4 text-slate-300 leading-relaxed">
+            I specialize in structured data processing, exploratory analysis, and clear reporting. My work centers on converting raw data into clean models and executive insights that drive strategy.
+          </p>
+          <p class="mt-4 text-slate-300 leading-relaxed">
+            Currently advancing my skills through the <span class="text-white font-bold">Masai x E&ICT Academy, IIT Roorkee</span> Data Science & AI program, I combine domain expertise in SQL, Python, and Excel to deliver structured analytical solutions.
+          </p>
+        </div>
+
+        <div class="tilt-card glass-card p-8 rounded-3xl border border-white/10">
+          <h4 class="text-xl font-black text-white mb-6 flex items-center">
+            <i class="fas fa-microchip text-brand-accent mr-3 text-2xl"></i> Analytics Philosophy
+          </h4>
+          <div class="space-y-4">
+            <div class="flex items-start space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-sm">01</div>
+              <div>
+                <h5 class="text-white font-bold text-sm">Data Cleaning & Wrangling</h5>
+                <p class="text-slate-400 text-xs mt-1">Removing anomalies, handling nulls, and standardizing schemas for accurate analysis.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-sm">02</div>
+              <div>
+                <h5 class="text-white font-bold text-sm">Relational SQL Queries</h5>
+                <p class="text-slate-400 text-xs mt-1">Building robust JOINs, aggregations, and subqueries across complex relational datasets.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-sm">03</div>
+              <div>
+                <h5 class="text-white font-bold text-sm">Visual & Executive Reporting</h5>
+                <p class="text-slate-400 text-xs mt-1">Designing structured dashboards and summary views to clearly present key metrics.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technical Skills Section -->
+  <section id="skills" class="py-24 border-t border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-xs font-black text-brand-accent uppercase tracking-widest">Tech Toolkit</h2>
+        <h3 class="text-3xl sm:text-4xl font-black text-white mt-2">Analytical Stack</h3>
+        <p class="text-slate-400 mt-4 text-sm">Core tools and libraries I leverage to inspect, model, and visualize data.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="tilt-card glass-card p-8 rounded-3xl border border-slate-800 hover:border-white/50 transition-all">
+          <div class="w-14 h-14 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center text-3xl mb-6 shadow-lg">
+            <i class="fas fa-file-excel"></i>
+          </div>
+          <h4 class="text-2xl font-black text-white mb-2">Microsoft Excel</h4>
+          <p class="text-slate-400 text-sm mb-6 leading-relaxed">PivotTables, advanced sorting/filtering, VLOOKUP/XLOOKUP formulas, and visual dashboard design.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">PivotTables</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">Data Cleaning</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">XLOOKUP</span>
+          </div>
+        </div>
+
+        <div class="tilt-card glass-card p-8 rounded-3xl border border-slate-800 hover:border-white/50 transition-all">
+          <div class="w-14 h-14 rounded-2xl bg-white/10 text-brand-accent flex items-center justify-center text-3xl mb-6 shadow-lg">
+            <i class="fas fa-database"></i>
+          </div>
+          <h4 class="text-2xl font-black text-white mb-2">SQL Relational DB</h4>
+          <p class="text-slate-400 text-sm mb-6 leading-relaxed">Constructing complex queries, multi-table JOINs, conditional GROUP BY aggregations, and CTEs.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">SELECT & WHERE</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">GROUP BY & HAVING</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">INNER/LEFT JOIN</span>
+          </div>
+        </div>
+
+        <div class="tilt-card glass-card p-8 rounded-3xl border border-slate-800 hover:border-white/50 transition-all">
+          <div class="w-14 h-14 rounded-2xl bg-white/10 text-amber-400 flex items-center justify-center text-3xl mb-6 shadow-lg">
+            <i class="fab fa-python"></i>
+          </div>
+          <h4 class="text-2xl font-black text-white mb-2">Python & pandas</h4>
+          <p class="text-slate-400 text-sm mb-6 leading-relaxed">Exploratory Data Analysis (EDA), DataFrame wrangling, data transformations, and statistical summaries.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">Python 3</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">pandas</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300">EDA Workflows</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Projects Section -->
+  <section id="projects" class="py-24 border-t border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+        <div>
+          <h2 class="text-xs font-black text-brand-accent uppercase tracking-widest">Portfolio</h2>
+          <h3 class="text-3xl sm:text-4xl font-black text-white mt-2">Projects & Case Studies</h3>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mt-6 md:mt-0" id="filter-container">
+          <button class="filter-btn active px-5 py-2.5 rounded-xl text-xs font-bold glass-card bg-white text-black transition-all shadow-lg" data-filter="all">All Projects</button>
+          <button class="filter-btn px-5 py-2.5 rounded-xl text-xs font-bold glass-card text-slate-400 hover:text-white transition-all" data-filter="excel">Excel</button>
+          <button class="filter-btn px-5 py-2.5 rounded-xl text-xs font-bold glass-card text-slate-400 hover:text-white transition-all" data-filter="sql">SQL</button>
+          <button class="filter-btn px-5 py-2.5 rounded-xl text-xs font-bold glass-card text-slate-400 hover:text-white transition-all" data-filter="python">Python</button>
+        </div>
+      </div>
+
+      <div class="project-card tilt-card mb-8 glass-card rounded-3xl overflow-hidden border border-white/20 p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center" data-category="excel">
+        <div class="lg:col-span-7">
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white border border-white/20">Featured Case Study</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Excel Analytics</span>
+          </div>
+          <h4 class="text-3xl font-black text-white mb-3">Sales Performance & Revenue Analysis</h4>
+          <p class="text-slate-300 text-sm leading-relaxed mb-6">
+            Analyzed historical sales metrics, category performance, and seasonal transaction patterns. Structured dynamic PivotTable reporting views and dynamic charts to evaluate revenue drivers.
+          </p>
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800/80 text-slate-300">Excel</span>
+            <span class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800/80 text-slate-300">PivotTables</span>
+            <span class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800/80 text-slate-300">Revenue Metrics</span>
+          </div>
+          <a href="https://github.com/" target="_blank" rel="noreferrer" class="inline-flex items-center text-sm font-black text-white hover:text-brand-accent transition-colors">
+            View Project Repository <i class="fas fa-arrow-right ml-2 text-xs"></i>
+          </a>
+        </div>
+        <div class="lg:col-span-5 bg-slate-950/80 rounded-2xl p-6 border border-slate-800">
+          <h5 class="text-xs uppercase tracking-wider text-slate-400 font-black mb-4">Core Highlights</h5>
+          <ul class="space-y-3 text-xs text-slate-300">
+            <li class="flex items-center"><i class="fas fa-chart-line text-emerald-400 mr-2.5 text-sm"></i> Tracked month-over-month growth trends across product lines.</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-brand-accent mr-2.5 text-sm"></i> Standardized raw order data & removed duplicate entries.</li>
+            <li class="flex items-center"><i class="fas fa-bullseye text-purple-400 mr-2.5 text-sm"></i> Formulated executive summary views for decision-makers.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="projects-grid">
+        <div class="project-card tilt-card glass-card rounded-3xl p-6 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between" data-category="sql">
+          <div>
+            <div class="flex items-center space-x-2 mb-3">
+              <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-brand-accent/20 text-brand-accent">SQL Querying</span>
+            </div>
+            <h4 class="text-xl font-bold text-white mb-2">Relational Business Database Queries</h4>
+            <p class="text-slate-400 text-sm leading-relaxed">Solving structured business questions using SQL JOINs, GROUP BY aggregations, conditional filters, and CTE subqueries.</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-xs font-bold text-brand-accent">In Progress</span>
+            <a href="https://github.com/" target="_blank" rel="noreferrer" class="text-sm text-slate-400 hover:text-white transition-colors">
+              Repository <i class="fab fa-github ml-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card tilt-card glass-card rounded-3xl p-6 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between" data-category="python">
+          <div>
+            <div class="flex items-center space-x-2 mb-3">
+              <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-500/20 text-amber-400">Python / pandas</span>
+            </div>
+            <h4 class="text-xl font-bold text-white mb-2">Exploratory Data Analysis Pipeline</h4>
+            <p class="text-slate-400 text-sm leading-relaxed">Automating data cleaning, handling missing value distributions, and calculating statistical summaries using pandas.</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-400">In Progress</span>
+            <a href="https://github.com/" target="_blank" rel="noreferrer" class="text-sm text-slate-400 hover:text-white transition-colors">
+              Repository <i class="fab fa-github ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Certifications Section -->
+  <section id="certifications" class="py-24 border-t border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-xs font-black text-brand-accent uppercase tracking-widest">Qualifications</h2>
+        <h3 class="text-3xl sm:text-4xl font-black text-white mt-2">Certifications & Credentials</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div class="tilt-card glass-card p-8 rounded-3xl border-l-4 border-l-white border border-slate-800">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-xl font-black text-white">Tata Data Analytics Virtual Internship</h4>
+            <i class="fas fa-award text-3xl text-white"></i>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-6">
+            Virtual internship focusing on framing business scenarios, defining key analytics metrics, and constructing executive visual presentations.
+          </p>
+          <button onclick="copyCertNotice()" class="inline-flex items-center text-xs font-bold text-white hover:text-brand-accent">
+            <i class="fas fa-link mr-1.5"></i> View Verification Link
+          </button>
+        </div>
+
+        <div class="tilt-card glass-card p-8 rounded-3xl border-l-4 border-l-brand-accent border border-slate-800">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-xl font-black text-white">Masai x E&ICT Academy, IIT Roorkee</h4>
+            <i class="fas fa-graduation-cap text-3xl text-brand-accent"></i>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-6">
+            Comprehensive Data Science & AI curriculum focusing on relational SQL, Python analytics pipelines, data wrangling techniques, and AI fundamentals.
+          </p>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white">
+            Current Learning Program
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-24 border-t border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="glass-card p-8 md:p-12 rounded-3xl border border-white/20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7">
+          <h2 class="text-xs font-black text-brand-accent uppercase tracking-widest">Let’s Connect</h2>
+          <h3 class="text-3xl sm:text-4xl font-black text-white mt-2">Open to Data Analytics Opportunities.</h3>
+          <p class="text-slate-300 mt-4 leading-relaxed max-w-xl">
+            Currently seeking entry-level Data Analyst and Business Intelligence roles. Feel free to send an email or connect with me directly!
+          </p>
+        </div>
+        <div class="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-4">
+          <a href="mailto:naveendevrari429@gmail.com" class="tilt-card w-full px-6 py-4 rounded-xl bg-white text-black font-extrabold text-center transition-all shadow-lg flex items-center justify-center hover:bg-slate-200">
+            <i class="fas fa-envelope mr-3"></i> Send Email
+          </a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" class="tilt-card w-full px-6 py-4 rounded-xl glass-card text-slate-200 font-bold text-center transition-all border border-slate-700 flex items-center justify-center hover:text-white">
+            <i class="fab fa-linkedin mr-3"></i> LinkedIn Profile
+          </a>
+          <a href="https://github.com/" target="_blank" rel="noreferrer" class="tilt-card w-full px-6 py-4 rounded-xl glass-card text-slate-200 font-bold text-center transition-all border border-slate-700 flex items-center justify-center hover:text-white">
+            <i class="fab fa-github mr-3"></i> GitHub Profile
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 border-t border-slate-900 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p>© <span id="year"></span> Naveen Prasad · Portfolio Website.</p>
+      <p class="flex items-center space-x-1">
+        <span>Designed with HTML, Tailwind CSS, GSAP & Three.js</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Interactive Scripts -->
+  <script>
+    let scene, camera, renderer, particleSystem;
+    let targetMouseX = 0, targetMouseY = 0;
+    let mouseX = 0, mouseY = 0;
+
+    function init3D() {
+      const canvas = document.getElementById('webgl-bg');
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+      camera.position.z = 400;
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const particleCount = 2200;
+      const particlePositions = new Float32Array(particleCount * 3);
+
+      for (let i = 0; i < particleCount * 3; i += 3) {
+        particlePositions[i] = (Math.random() - 0.5) * 1200;
+        particlePositions[i + 1] = (Math.random() - 0.5) * 1200;
+        particlePositions[i + 2] = (Math.random() - 0.5) * 1200;
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+      const mat = new THREE.PointsMaterial({
+        size: 2.2,
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.85
+      });
+
+      particleSystem = new THREE.Points(geo, mat);
+      scene.add(particleSystem);
+
+      window.addEventListener('resize', onResize);
+      document.addEventListener('mousemove', onMouseMove);
+
+      animate();
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function onMouseMove(e) {
+      targetMouseX = (e.clientX - window.innerWidth / 2) * 0.05;
+      targetMouseY = (e.clientY - window.innerHeight / 2) * 0.05;
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      mouseX += (targetMouseX - mouseX) * 0.05;
+      mouseY += (targetMouseY - mouseY) * 0.05;
+
+      camera.position.x = mouseX;
+      camera.position.y = -mouseY;
+      camera.lookAt(scene.position);
+
+      particleSystem.rotation.y += 0.0008;
+
+      renderer.render(scene, camera);
+    }
+
+    const titleText = "NAVEEN PRASAD";
+    const kineticTitleBox = document.getElementById('kinetic-title-box');
+
+    titleText.split('').forEach(char => {
+      const span = document.createElement('span');
+      span.className = 'intro-text-letter';
+      span.setAttribute('data-char', char === ' ' ? '\u00A0' : char);
+      span.textContent = char === ' ' ? '\u00A0' : char;
+      kineticTitleBox.appendChild(span);
+    });
+
+    function triggerIntroAnimation() {
+      const overlay = document.getElementById('intro-overlay');
+      const dot = document.getElementById('intro-center-dot');
+      const letters = document.querySelectorAll('.intro-text-letter');
+      const badge = document.getElementById('kinetic-badge');
+      const navbar = document.getElementById('navbar');
+
+      gsap.killTweensOf([overlay, dot, letters, badge, navbar]);
+      overlay.style.pointerEvents = 'all';
+      gsap.set(overlay, { opacity: 1, display: 'flex' });
+      gsap.set(dot, { scale: 1, opacity: 1 });
+      gsap.set(letters, { opacity: 0, filter: 'blur(15px)', rotateX: 110, rotateY: -20, z: -350, scale: 0.6 });
+      gsap.set(badge, { opacity: 0, y: 30 });
+      gsap.set(navbar, { opacity: 0 });
+
+      const tl = gsap.timeline();
+
+      tl.to(dot, { scale: 3, duration: 0.5, ease: 'power2.out' })
+        .to(dot, { scale: 0, opacity: 0, duration: 0.3, ease: 'power2.in' })
+        .to(letters, {
+          opacity: 1,
+          filter: 'blur(0px)',
+          rotateX: 0,
+          rotateY: 0,
+          z: 0,
+          scale: 1,
+          duration: 0.9,
+          stagger: 0.05,
+          ease: 'back.out(1.8)'
+        }, "-=0.1")
+        .to(badge, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, "-=0.2")
+        .to(overlay, {
+          opacity: 0,
+          duration: 0.9,
+          delay: 0.8,
+          ease: 'power3.inOut',
+          onComplete: () => {
+            overlay.style.display = 'none';
+            overlay.style.pointerEvents = 'none';
+          }
+        })
+        .to(navbar, { opacity: 1, duration: 0.6 }, "-=0.4");
+    }
+
+    window.onload = function() {
+      init3D();
+      triggerIntroAnimation();
+    };
+
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 14;
+        const rotateY = (centerX - x) / 14;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+      });
+    });
+
+    function handleImageError(img) {
+      if (img.src.includes('1000059184_2.png')) {
+        img.src = '1000059184.png';
+      } else {
+        img.style.display = 'none';
+        document.getElementById('svg-fallback').classList.remove('hidden');
+        document.getElementById('svg-fallback').classList.add('flex');
+      }
+    }
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      });
+    });
+
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => {
+          b.classList.remove('bg-white', 'text-black', 'shadow-lg');
+          b.classList.add('text-slate-400');
+        });
+
+        btn.classList.add('bg-white', 'text-black', 'shadow-lg');
+        btn.classList.remove('text-slate-400');
+
+        const filterValue = btn.getAttribute('data-filter');
+
+        projectCards.forEach(card => {
+          if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
+            card.style.display = card.classList.contains('mb-8') ? 'grid' : 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    function showToast(message, iconClass = 'fa-info-circle') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastMessage.textContent = message;
+      toastIcon.className = `fas ${iconClass} text-white`;
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3000);
+    }
+
+    function copyCertNotice() {
+      showToast('"C:\Users\Naveen\Downloads\Tata data analytics vertiual internship.pdf"', 'fa-link');
+    }
+  </script>
+</body>
+</html>
