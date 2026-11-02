@@ -273,7 +273,7 @@
 
           <div class="mt-12 flex items-center justify-center lg:justify-start space-x-6 text-slate-400">
             <a href="https://github.com/Naveendevrari1" target="_blank" rel="noreferrer" class="hover:text-white transition-colors text-2xl hover:scale-125 transform duration-300" title="GitHub"><i class="fab fa-github"></i></a>
-            <a href="https://www.linkedin.com/in/naveen-devrari-b121b643b/" target="_blank" rel="noreferrer" class="hover:text-white transition-colors text-2xl hover:scale-125 transform duration-300" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="https://www.linkedin.com/in/naveen-devrari" target="_blank" rel="noreferrer" class="hover:text-white transition-colors text-2xl hover:scale-125 transform duration-300" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
             <a href="mailto:naveendevrari429@gmail.com" class="hover:text-white transition-colors text-2xl hover:scale-125 transform duration-300" title="Email"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
@@ -553,10 +553,10 @@
           <a href="mailto:naveendevrari429@gmail.com" class="tilt-card w-full px-6 py-4 rounded-xl bg-white text-black font-extrabold text-center transition-all shadow-lg flex items-center justify-center hover:bg-slate-200">
             <i class="fas fa-envelope mr-3"></i> Send Email
           </a>
-          <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" class="tilt-card w-full px-6 py-4 rounded-xl glass-card text-slate-200 font-bold text-center transition-all border border-slate-700 flex items-center justify-center hover:text-white">
+          <a href="https://www.linkedin.com/in/naveen-devrari-b121b643b/" target="_blank" rel="noreferrer" class="tilt-card w-full px-6 py-4 rounded-xl glass-card text-slate-200 font-bold text-center transition-all border border-slate-700 flex items-center justify-center hover:text-white">
             <i class="fab fa-linkedin mr-3"></i> LinkedIn Profile
           </a>
-          <a href="https://github.com/" target="_blank" rel="noreferrer" class="tilt-card w-full px-6 py-4 rounded-xl glass-card text-slate-200 font-bold text-center transition-all border border-slate-700 flex items-center justify-center hover:text-white">
+          <a href="https://github.com/Naveendevrari1" target="_blank" rel="noreferrer" class="tilt-card w-full px-6 py-4 rounded-xl glass-card text-slate-200 font-bold text-center transition-all border border-slate-700 flex items-center justify-center hover:text-white">
             <i class="fab fa-github mr-3"></i> GitHub Profile
           </a>
         </div>
@@ -724,8 +724,12 @@
     });
 
     function handleImageError(img) {
-      if (img.src.includes('1000059184_2.png')) {
-        img.src = '1000059184.png';
+      if (img.src.includes('1000059184.png')) {
+        img.src = '1000059184_2.png';
+      } else if (img.src.includes('1000059184_2.png')) {
+        img.src = 'profile.jpg';
+      } else if (img.src.includes('profile.jpg')) {
+        img.src = 'image_3c30e8.png';
       } else {
         img.style.display = 'none';
         document.getElementById('svg-fallback').classList.remove('hidden');
@@ -791,7 +795,7 @@
     }
 
     function copyCertNotice() {
-      showToast('"C:\Users\Naveen\Downloads\Tata data analytics vertiual internship.pdf"', 'fa-link');
+      showToast('Replace placeholder link with your official Tata certificate URL.', 'fa-link');
     }
   </script>
 </body>
